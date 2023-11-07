@@ -69,6 +69,14 @@ async function run() {
       res.send(result)
     }) 
 
+    // get requested food data
+    app.get('/requested-foods', async(req,res)=>{
+      const email = req.query.email
+      const query = {'UserEmail': email}
+      const result = await reqCollection.find(query).toArray()
+      res.send(result)
+    })
+
     // post methods
     app.post('/add-food',async(req,res)=>{
       const foodData = req.body
@@ -95,4 +103,4 @@ run().catch(console.dir);
 
 app.listen(port, () => {
   console.log(`shareplus server running on port ${port}`)
-}) 
+})  
