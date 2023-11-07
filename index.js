@@ -34,6 +34,12 @@ async function run() {
         const result =await foodCollection.find().limit(8).sort(options).toArray()
         res.send(result)
     })
+    // get featured Foods
+    app.get('/featured-foods-sidebar',async(req,res)=>{
+        const options = { FoodQuantity : -1 }
+        const result =await foodCollection.find().limit(2).sort(options).toArray()
+        res.send(result)
+    })
 
     // get all food
     app.get('/foods',async(req,res)=>{
@@ -60,7 +66,7 @@ async function run() {
       const query = { _id : new ObjectId(id) }
       const result =await foodCollection.findOne(query)
       res.send(result)
-    })
+    }) 
     
     await client.connect(); 
     // Send a ping to confirm a successful connection
