@@ -22,23 +22,48 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+const foodCollection = client.db('shareplus').collection('foods')
 
 async function run() {
+
   try {
 
+    // get featured Foods
+    app.get('/featured-foods',async(req,res)=>{
+        const options = { FoodQuantity : -1 }
+        const result =await foodCollection.find().limit(8).sort(options).toArray()
+        res.send(result)
+    })
+
+    // get all food
+    app.get('/foods',async(req,res)=>{
+      const searchtext =  req.query.search
+      const sortingtext = req.query.sort 
+      let search = {}
+      if (searchtext) {
+        search = {FoodName : {$regex: new RegExp(searchtext,'i')}}
+      }
+
+      let sorting = {}
+
+       if (sortingtext === "sort") {
+         sorting ={ExpiredDate: 1}
+       }
+      const result = await foodCollection.find(search).sort(sorting).toArray()
+      
+      res.send(result)
+    })
     
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    await client.connect(); 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    console.log("Pined your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
   }
 }
 run().catch(console.dir);
-
 
 app.listen(port, () => {
   console.log(`shareplus server running on port ${port}`)
