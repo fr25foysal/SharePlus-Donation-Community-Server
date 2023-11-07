@@ -23,10 +23,12 @@ const client = new MongoClient(uri, {
   }
 });
 const foodCollection = client.db('shareplus').collection('foods')
+const reqCollection = client.db('shareplus').collection('food-requests')
 
 async function run() {
 
   try {
+    // Get methods
 
     // get featured Foods
     app.get('/featured-foods',async(req,res)=>{
@@ -34,10 +36,11 @@ async function run() {
         const result =await foodCollection.find().limit(8).sort(options).toArray()
         res.send(result)
     })
+
     // get featured Foods
     app.get('/featured-foods-sidebar',async(req,res)=>{
-        const options = { FoodQuantity : -1 }
-        const result =await foodCollection.find().limit(2).sort(options).toArray()
+        const options = { ExpiredDate : 1 }
+        const result =await foodCollection.find().limit(1).sort(options).toArray()
         res.send(result)
     })
 
@@ -49,14 +52,12 @@ async function run() {
       if (searchtext) {
         search = {FoodName : {$regex: new RegExp(searchtext,'i')}}
       }
-
       let sorting = {}
 
        if (sortingtext === "sort") {
          sorting ={ExpiredDate: 1}
        }
       const result = await foodCollection.find(search).sort(sorting).toArray()
-      
       res.send(result)
     })
 
@@ -67,6 +68,19 @@ async function run() {
       const result =await foodCollection.findOne(query)
       res.send(result)
     }) 
+
+    // post methods
+    app.post('/add-food',async(req,res)=>{
+      const foodData = req.body
+      const result = await foodCollection.insertOne(foodData)
+      res.send(result)
+    })
+ 
+    app.post('/req-food',async(req,res)=>{
+      const reqData = req.body
+      const result = await reqCollection.insertOne(reqData)
+      res.send(result)
+    })
     
     await client.connect(); 
     // Send a ping to confirm a successful connection
@@ -75,10 +89,10 @@ async function run() {
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
-  }
+  } 
 }
 run().catch(console.dir);
 
 app.listen(port, () => {
   console.log(`shareplus server running on port ${port}`)
-})
+}) 
