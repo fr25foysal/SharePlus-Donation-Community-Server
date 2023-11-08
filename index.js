@@ -4,9 +4,13 @@ const cors = require('cors')
 require('dotenv').config()
 const port =process.env.PORT || 5000
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken')
 
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+  origin: ['http://localhost:5173','https://shareplus-25.web.app','https://shareplus-25.firebaseapp.com'],
+  credentials: true
+}))
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
@@ -90,6 +94,13 @@ async function run() {
       res.send(result)
     })
 
+    // Jwt
+    app.post('/jwt',async(req,res)=>{
+      const email = req.body
+      const token = jwt.sign(email,'secret',{expiresIn: '1h'})
+      console.log(token);
+    })
+
     // Delete Api's
     app.delete("/delete/:id", async (req, res) => {
       const id = req.params.id;
@@ -104,7 +115,7 @@ async function run() {
     // await client.connect(); 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
-    console.log("Pined your deployment. You successfully connected to MongoDB!");
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
