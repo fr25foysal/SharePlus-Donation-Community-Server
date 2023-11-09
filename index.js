@@ -5,16 +5,33 @@ require('dotenv').config()
 const port =process.env.PORT || 5000
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken')
+const cookieParser = require('cookie-parser')
 
 app.use(express.json())
 app.use(cors({
   origin: ['http://localhost:5173','https://shareplus-25.web.app','https://shareplus-25.firebaseapp.com'],
   credentials: true
 }))
+app.use(cookieParser())
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
+
+// Midlewares
+const verifyToken = (req,res,next) =>{
+  const token = req?.cookies?.token
+  if (!token) {
+    return res.status(401).send({message: "Unauthorized Access"})
+  }
+  jwt.verify(token,process.env.SECRET,(err, decoded)=>{
+    if (err) {
+      return res.status(401).send({message: "Unauthorized Access"})
+    }
+    req.user = decoded
+    next()
+  })
+} 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.thkxg3l.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -113,6 +130,12 @@ async function run() {
         secure: true
       })
       .send({success : true})
+      console.log(token);
+    })
+// delete cookie
+    app.delete('/logout',async(req,res)=>{
+      res.clearCookie('token',{maxAge: 0,sameSite: 'none',secure: true}).send({success: true})
+    
     })
 
     // Delete Api's
