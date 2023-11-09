@@ -81,11 +81,20 @@ async function run() {
       res.send(result)
     })
 
+    // Get userwise added food
+    app.get('/manage-foods',async(req,res)=>{
+      const email = req.query.email
+      const query= {'DonatorEmail': email}
+      const result = await foodCollection.find(query).toArray()
+      res.send(result)
+    })
+
     // post methods
     app.post('/add-food',async(req,res)=>{
       const foodData = req.body
       const result = await foodCollection.insertOne(foodData)
       res.send(result)
+      
     })
  
     app.post('/req-food',async(req,res)=>{
@@ -97,8 +106,8 @@ async function run() {
     // Jwt
     app.post('/jwt',async(req,res)=>{
       const email = req.body
-      const token = jwt.sign(email,'secret',{expiresIn: '1h'})
-      console.log(token);
+      // const token =await jwt.sign(email,'secret',{expiresIn: '1h'})
+      console.log(email);
     })
 
     // Delete Api's
