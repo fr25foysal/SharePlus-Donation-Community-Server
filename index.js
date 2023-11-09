@@ -120,6 +120,28 @@ async function run() {
       res.send(result);
       console.log(id);
     });
+
+    // delete from manage
+    app.delete('/delete/:id',async(req,res)=>{
+      const id = req.params.id 
+      const filter = {_id: new ObjectId(id)}
+      const result = await foodCollection.deleteOne(filter)
+      res.send(result)
+    })
+
+    // Put Api's
+    // Update Food From mannage Food
+    app.put('/update-food',async(req,res)=>{
+      const id = req.query.id
+      const data = req.body
+      const query = {_id: new ObjectId(id)}
+      const options = {upsert : true}
+      const update = {
+        $set: data
+      }
+      const result = await foodCollection.updateOne(query,update,options)
+      res.send(result)
+    })
     
     // await client.connect(); 
     // Send a ping to confirm a successful connection
