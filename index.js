@@ -106,8 +106,13 @@ async function run() {
     // Jwt
     app.post('/jwt',async(req,res)=>{
       const email = req.body
-      // const token =await jwt.sign(email,'secret',{expiresIn: '1h'})
-      console.log(email);
+      const token =await jwt.sign(email,process.env.SECRET,{expiresIn: '1h'})
+      res.cookie('token',token,{
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true
+      })
+      .send({success : true})
     })
 
     // Delete Api's
@@ -118,15 +123,17 @@ async function run() {
       };
       const result = await reqCollection.deleteOne(query);
       res.send(result);
-      console.log(id);
+      console.log(query);
     });
 
     // delete from manage
-    app.delete('/delete/:id',async(req,res)=>{
+    app.delete('/manage/delete/:id',async(req,res)=>{
       const id = req.params.id 
-      const filter = {_id: new ObjectId(id)}
+      const filter = {
+        _id: new ObjectId(id)}
       const result = await foodCollection.deleteOne(filter)
       res.send(result)
+      console.log(filter);
     })
 
     // Put Api's
